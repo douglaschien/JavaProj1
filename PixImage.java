@@ -302,6 +302,9 @@ public class PixImage {
         newPixImage.red[i][j]=mag2gray(energy);
         newPixImage.green[i][j]=mag2gray(energy);
         newPixImage.blue[i][j]=mag2gray(energy);
+
+
+        
       }
     }
     return newPixImage;
