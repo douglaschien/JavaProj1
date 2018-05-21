@@ -71,7 +71,7 @@ public class RunIterator implements Iterator {
    */
   public boolean hasNext() {
     // Replace the following line with your solution.
-    if (current==null) {
+    if (current.next==null) {
       return false;
     }else{
       return true;

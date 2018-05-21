@@ -138,7 +138,7 @@ public class RunLengthEncoding implements Iterable {
     PixImage a = new PixImage(this.width,this.height);
     // DlistNode b=this.head.next;
     RunIterator iter = this.iterator();
-    int x= 0, y=-1;
+    int x= -1, y=0;
     while(iter.hasNext()){
       int[] item = iter.next();
       int num=item[3];
@@ -146,10 +146,10 @@ public class RunLengthEncoding implements Iterable {
       int green=item[1];
       int blue=item[2];
       for (int i=0; i<num; i++) {      //column
-        y+=1;//row
-        if (y>=height) {
-          x+=1;
-          y%=height;
+        x+=1;//row
+        if (x>=width) {
+          y+=1;
+          x%=width;
         }
         a.setPixel(x,y,(short)red,(short)green,(short)blue);
       }
@@ -188,36 +188,37 @@ public class RunLengthEncoding implements Iterable {
   public RunLengthEncoding(PixImage image) {
     // Your solution here, but you should probably leave the following line
     // at the end.
+    width=image.getWidth();
+    height=image.getHeight();
     DList a = new DList();
     for (int j=0; j<height; j++) {
       for (int i=0; i<width ; i++) {
-        int[] item={image.getRed(i,j),image.getGreen(i,j),image.getBlue(i,j),0};
+        int[] item={image.getRed(i,j),image.getGreen(i,j),image.getBlue(i,j),1};
         a.insertBack(item);
       }
     }
-    DList newList=new DList();
+    // DList newList=new DList();
     DListNode c= a.getHead();
-    DListNode p= c;
-    while(c!=null){
-      p=c.next;
+    DListNode p= c.next;
+    while(c!=null&&p!=null){
       int aggregate=1;
       while (c.item[0]==p.item[0]&&c.item[1]==p.item[1]&&c.item[2]==p.item[2]) {
         aggregate+=1;
         p=p.next;
       }
       c.item[3]=aggregate;
-      newList.insertBack(c.item);
       c.next=p;
       c=c.next;
+      p=c.next;
     }
-    list=newList;
-    this.width=image.getWidth();
-    this.height=image.getHeight();
-    // check();
-    System.out.println("newList is null?:"+(newList==null));
-    System.out.println("list is null?:"+(list==null));
-    System.out.println("tail is null?:"+(list.getTail()==null));
+    // System.out.println("tail is null?:"+(newList.getTail()==null));
 
+    this.list=a;
+
+    // check();
+    // // System.out.println("newList is null?:"+(newList==null));
+    // System.out.println("list is null?:"+(this.list==null));
+    // System.out.println("tail is null?:"+(this.list.getTail()==null));
   }
 
   /**
@@ -229,9 +230,10 @@ public class RunLengthEncoding implements Iterable {
     // Your solution here.
     RunIterator iter = this.iterator();
     int aggregate=0;
+    DListNode current=null;
     while(iter.hasNext()){
       int[] k= iter.next();
-      DListNode current= iter.getCurrent();
+      current= iter.getCurrent();
       int[] t=current.item;
       aggregate+=k[3];
       if (k[0]==t[0]&&k[1]==t[1]&&k[2]==t[2]) {
@@ -239,10 +241,10 @@ public class RunLengthEncoding implements Iterable {
         return;
       }
     }
-    DListNode sail = this.list.getTail();
-    System.out.println("list in check() is null?:"+(list==null));
-    System.out.println("sail is null?:"+(sail==null));
-    if ((aggregate)!=width*height) {
+    // DListNode sail = this.list.getTail();
+    // System.out.println("list in check() is null?:"+(list==null));
+    // System.out.println("sail is null?:"+(sail==null));
+    if ((aggregate+current.item[3])!=width*height) {
       System.out.println("FFALSE");
       return;
     }

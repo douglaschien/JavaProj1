@@ -26,15 +26,6 @@ public class DList {
     return tail;
   }
 
-  public boolean isEmpty() {
-    return size == 0;
-  }
-
-  public int length() {
-    return size;
-  }
-
-
 
 
   public void insertBack(int[] item) {
@@ -50,43 +41,6 @@ public class DList {
       tail=i;
       size++;
     }
-  }
-
-  public DListNode next(DListNode node) {
-    // Your solution here.
-    if ((node==null)||(node==tail)) {
-      return null;
-    }
-    return node.next;
-  }
-
-  public DListNode prev(DListNode node) {
-    // Your solution here.
-    if (node==null||node==head) {
-      return null;
-    }
-    return node.prev;
-  }
-
-  public void insertAfter(int[] item, DListNode node) {
-    // Your solution here.
-    if (node==null) {
-      return;
-    }
-    DListNode i = newNode(item, node, node.next);
-    node.next.prev = i;
-    node.next = i;
-    size++;
-  }
-
-  public void insertBefore(int[] item, DListNode node) {
-    // Your solution here.
-    if (node==null) {
-      return;
-    }
-    node.prev.next=newNode(item,node.prev,node);
-    node.prev=node.prev.next;
-    size++;
   }
 
   public void remove(DListNode node) {
