@@ -154,6 +154,7 @@ public class RunLengthEncoding implements Iterable {
         a.setPixel(x,y,(short)red,(short)green,(short)blue);
       }
     }
+    System.out.println(a.getRed(0,1));
     return a;
   }
 
@@ -168,7 +169,14 @@ public class RunLengthEncoding implements Iterable {
    */
   public String toString() {
     // Replace the following line with your solution.
-    return "";
+    DListNode a = list.getHead();
+    String s= "STP";
+    while(a!=null){
+      s+=" => ";
+      s+="["+a.item[0]+","+a.item[3]+"]";
+      a=a.next;
+    }
+    return s;
   }
 
 
@@ -200,26 +208,26 @@ public class RunLengthEncoding implements Iterable {
     // DList newList=new DList();
     DListNode c= a.getHead();
     DListNode p= c.next;
-    while(c!=null&&p!=null){
-      int aggregate=1;
-      while (c.item[0]==p.item[0]&&c.item[1]==p.item[1]&&c.item[2]==p.item[2]) {
-        aggregate+=1;
-        p=p.next;
-      }
-      c.item[3]=aggregate;
-      c.next=p;
-      c=c.next;
-      p=c.next;
+    while(c!=null&&p!=null){//why the condition includes c!=null&&p!=null? Because inside the cycle body, we use both p and c's fields. we must assure that both of them are not null first !!! or we get nullpointerexception!!!
+    int aggregate=1;
+      while (c.item[0]==p.item[0]&&c.item[1]==p.item[1]&&c.item[2]==p.item[2]) {//why we don't put p=c.next first in the cycle body? Because if we do so, p could become null, then p.item be nullpointer!!!
+      aggregate+=1;
+      p=p.next;
     }
+    c.item[3]=aggregate;
+    c.next=p;
+    c=c.next;
+    p=c.next;
+  }
     // System.out.println("tail is null?:"+(newList.getTail()==null));
 
-    this.list=a;
+  this.list=a;
 
     // check();
     // // System.out.println("newList is null?:"+(newList==null));
     // System.out.println("list is null?:"+(this.list==null));
     // System.out.println("tail is null?:"+(this.list.getTail()==null));
-  }
+}
 
   /**
    *  check() walks through the run-length encoding and prints an error message
@@ -273,6 +281,109 @@ public class RunLengthEncoding implements Iterable {
   public void setPixel(int x, int y, short red, short green, short blue) {
     // Your solution here, but you should probably leave the following line
     //   at the end.
+    int lc=y*width+x+1;
+    int c=0;
+    DListNode a=list.getHead();
+    while(lc>c&&a!=null){
+      c+=a.item[3];
+      a=a.next;
+    }
+    c-=a.item[3];
+    a=a.prev;
+    int num=lc-c;
+    if (a.item[0]==red) {
+      return;
+    }else if (a!=list.getHead()&&a!=list.getTail()) {
+      if (num!=1&&num!=a.item[3]) {
+        int[] item = {red,green,blue,1};
+        int[] itemBefore = {a.item[0],a.item[1],a.item[2],num-1};
+        int[] itemAfter = {a.item[0],a.item[1],a.item[2],a.item[3]-num};
+        DListNode newBefore = new DListNode(itemBefore,a.prev,null);
+        DListNode newAfter = new DListNode(itemAfter,null,a.next);
+        DListNode newNode = new DListNode(item,newBefore,newAfter);
+        newBefore.next=newNode;
+        newAfter.prev=newNode;
+      }else if (num==1) {
+        if (a.prev.item[0]!=red) {
+          int[] item = {red,green,blue,1};
+          int[] itemAfter = {a.item[0],a.item[1],a.item[2],a.item[3]-1};
+          DListNode newAfter = new DListNode(itemAfter,null,a.next);
+          DListNode newNode =new DListNode(item,a.prev,newAfter);
+          newAfter.prev=newNode;
+        }else{
+          a.prev.item[3]+=1;
+          a.item[3]-=1;
+        }
+      }else{
+        if (a.next.item[0]!=red) {
+          int[] item = {red,green,blue,1};
+          int[] itemBefore = {a.item[0],a.item[1],a.item[2],a.item[3]-1};
+          DListNode newBefore = new DListNode(itemBefore,a.prev,null);
+          DListNode newNode =new DListNode(item,newBefore,a.next);
+          newBefore.next=newNode;
+        }else{
+          a.next.item[3]+=1;
+          a.item[3]-=1;
+        }
+      }
+    }else if (a==list.getHead()) { // HEAD
+      if (num!=1&&num!=a.item[3]) {
+        int[] item = {red,green,blue,1};
+        int[] itemBefore = {a.item[0],a.item[1],a.item[2],num-1};
+        int[] itemAfter = {a.item[0],a.item[1],a.item[2],a.item[3]-num};
+        DListNode newBefore = new DListNode(itemBefore,a.prev,null);
+        DListNode newAfter = new DListNode(itemAfter,null,a.next);
+        DListNode newNode = new DListNode(item,newBefore,newAfter);
+        newBefore.next=newNode;
+        newAfter.prev=newNode;
+      }else if (num==1) {  
+        int[] item = {red,green,blue,1};
+        int[] itemAfter = {a.item[0],a.item[1],a.item[2],a.item[3]-1};
+        DListNode newAfter = new DListNode(itemAfter,null,a.next);
+        DListNode newNode =new DListNode(item,null,newAfter);
+        newAfter.prev=newNode; 
+      }else{
+        if (a.next.item[0]!=red) {
+          int[] item = {red,green,blue,1};
+          int[] itemBefore = {a.item[0],a.item[1],a.item[2],a.item[3]-1};
+          DListNode newBefore = new DListNode(itemBefore,null,null);
+          DListNode newNode =new DListNode(item,newBefore,a.next);
+          newBefore.next=newNode;
+        }else{
+          a.next.item[3]+=1;
+          a.item[3]-=1;
+        }
+      }
+    }else if (a==list.getTail()) {
+      if (num!=1&&num!=a.item[3]) {
+        int[] item = {red,green,blue,1};
+        int[] itemBefore = {a.item[0],a.item[1],a.item[2],num-1};
+        int[] itemAfter = {a.item[0],a.item[1],a.item[2],a.item[3]-num};
+        DListNode newBefore = new DListNode(itemBefore,a.prev,null);
+        DListNode newAfter = new DListNode(itemAfter,null,a.next);
+        DListNode newNode = new DListNode(item,newBefore,newAfter);
+        newBefore.next=newNode;
+        newAfter.prev=newNode;
+      }else if (num==1) {
+        if (a.prev.item[0]!=red) {
+          int[] item = {red,green,blue,1};
+          int[] itemAfter = {a.item[0],a.item[1],a.item[2],a.item[3]-1};
+          DListNode newAfter = new DListNode(itemAfter,null,null);
+          DListNode newNode =new DListNode(item,a.prev,newAfter);
+          newAfter.prev=newNode;
+        }else{
+          a.prev.item[3]+=1;
+          a.item[3]-=1;
+        }
+      }else{
+        int[] item = {red,green,blue,1};
+        int[] itemBefore = {a.item[0],a.item[1],a.item[2],a.item[3]-1};
+        DListNode newBefore = new DListNode(itemBefore,a.prev,null);
+        DListNode newNode =new DListNode(item,newBefore,null);
+        newBefore.next=newNode;
+      } //TAIL
+    }
+
     check();
   }
 
@@ -355,6 +466,8 @@ public class RunLengthEncoding implements Iterable {
     System.out.print(image1);
     RunLengthEncoding rle1 = new RunLengthEncoding(image1);
     rle1.check();
+    System.out.println(rle1);
+
     System.out.println("Testing getWidth/getHeight on a 3x3 encoding.");
     doTest(rle1.getWidth() == 3 && rle1.getHeight() == 3,
      "RLE1 has wrong dimensions");
